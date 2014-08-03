@@ -1,0 +1,27 @@
+@import "../../../style/__vendor.styl"
+
+[data-molecule-div=calendar]
+  position: relative
+  display: table
+  // display-flex()
+  // justify-content center
+  // align-content center
+  // align-items center
+  &.full
+    position: absolute !important
+    width: 100% !important
+    height: 100% !important
+  &:not(.full)
+    height: 12rem
+
+  text-align: center
+  > [data-atom-day]
+    display: inline-block
+    width: 14.25%
+    line-height: 1.75rem
+
+    &.disabled
+      opacity: 0.25
+
+    &.today
+      background-color: red
