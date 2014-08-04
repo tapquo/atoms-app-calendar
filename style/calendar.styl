@@ -1,3 +1,4 @@
+@import "../../../theme/__init.styl"
 @import "../../../style/__vendor.styl"
 
 [data-molecule-div=calendar]
@@ -16,12 +17,47 @@
 
   text-align: center
   > [data-atom-day]
+    position: relative
     display: inline-block
     width: 14.25%
+    font-size: FONT_SIZE_SMALL
+    font-weight: FONT_WEIGHT_NORMAL
     line-height: 1.75rem
 
-    &.disabled
-      opacity: 0.25
+
+    &:hover, &:active
+      background-color: blue
+
+    &:nth-child(7n+6), &:nth-child(7n+7)
+      opacity: 0.6
+
+    &:nth-child(-n+7)
+      font-size: FONT_SIZE_TINY
+
+    &.disabled, &:nth-child(-n+7)
+      font-weight: FONT_WEIGHT_THIN
+      opacity: 0.3
 
     &.today
-      background-color: red
+      font-weight: FONT_WEIGHT_BOLD
+      color: red
+
+    &.event
+      // background-color: #eee
+      font-weight: FONT_WEIGHT_BOLD
+      &:after
+        content: "·"
+        position: absolute
+        left: 0px
+        top: 62.5%
+        width: 100%
+        height: HEIGHT = (FONT_SIZE_SMALL / 2)
+        font-size: (2.5 * FONT_SIZE_BIG)
+        font-weight: FONT_WEIGHT_THIN
+        line-height: HEIGHT
+        opacity: 0.6
+
+    &.active
+      background-color: #ccc
+      color: #fff
+      font-weight: FONT_WEIGHT_BOLD

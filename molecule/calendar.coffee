@@ -10,40 +10,69 @@
 
 class Atoms.Molecule.Calendar extends Atoms.Molecule.Div
 
-  @MONTHS   : "January,February,March,April,May,June,July,August,September,October,November,December".split(",")
-  @WEEKDAYS : "Sun,Mon,Tue,Wed,Thu,Fri,Sat".split(",")
-  @DAYS     : "31,0,31,30,31,31,30,31,30,31,30,31".split(",")
+  @MONTHS : "January,February,March,April,May,June,July,August,September,October,November,December".split(",")
+  @DAYS   : "Mon,Tue,Wed,Thu,Fri,Sat,Sun".split(",")
 
   @available: ["Atom.Day"]
 
-  constructor: ->
-    super
+  @events : ["select"]
+
+  constructor: (attributes) ->
+    super attributes
     @today = new Date()
     do @date
 
   date: (@value = new Date()) ->
-    @value = new Date("2014/08/05")
+    @value = new Date("2014/08/26")
+
+    do @destroyChildren
 
     day = @value.getDate()
-    week_day = @value.getDay()
     month = @value.getMonth()
     year = @value.getFullYear()
 
+    # DAYS HEADER
+    for day in @constructor.DAYS
+      @appendChild "App.Extension.Calendar.Day", day: day, events: undefined
+
     # Previous Month visible Days
-    first_day_of_month = new Date(year, month).getDay()
+    first_day_of_month = new Date(year, month).getDay() - 1
+    previous_days = @_daysInMonth((month - 1), year) - (first_day_of_month - 1)
+
     for previousDay in [0...first_day_of_month]
-      @appendChild "App.Extension.Calendar.Day", day: "?", disabled: true
+      @appendChild "App.Extension.Calendar.Day", day: previous_days, disabled: true
+      previous_days++
 
     # Current Month Days
-    for day in [1..parseInt(@constructor.DAYS[@value.getMonth()])]
-      @appendChild "App.Extension.Calendar.Day", day: day, date: new Date(year, month, day)
+    for day in [1..@_daysInMonth(month, year)]
+      date = new Date(year, month, day)
+      attributes =
+        day   : day
+        date  : date
+        today : @today.toString().substring(4, 15) is date.toString().substring(4, 15)
+        active: @value.toString().substring(4, 15) is date.toString().substring(4, 15)
+        event : (day > 11 and day < 13) or (day > 19 and day < 22)
+      @appendChild "App.Extension.Calendar.Day", attributes
 
     # # Next Month visible Days
-    last_day_of_month = new Date(year, month, @constructor.DAYS[month]).getDay()
-    for a in [6...last_day_of_month]
-      @appendChild "App.Extension.Calendar.Day", day: "?", disabled: true
+    last_day_of_month = new Date(year, month, @_daysInMonth(month, year)).getDay()
+    day = 1
+    for index in [6..last_day_of_month]
+      @appendChild "App.Extension.Calendar.Day", day: day, disabled: true
+      day++
 
-
+  # -- Bubble Children Events --------------------------------------------------
   onDayTouch: (event, atom) ->
     console.log atom.attributes.date
+    atom.el
+      .addClass "active"
+      .siblings().removeClass "active"
+    @bubble "select", atom.attributes.date
     false
+
+  # -- Private Events ----------------------------------------------------------
+  _daysInMonth: (month, year = 2014) ->
+    if month < 0
+      month = 12
+      year--
+    32 - new Date(year, month, 32).getDate()
