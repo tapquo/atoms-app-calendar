@@ -10,29 +10,32 @@
 
 class Atoms.Molecule.Calendar extends Atoms.Molecule.Div
 
-  @MONTHS : "January,February,March,April,May,June,July,August,September,October,November,December".split(",")
-  @DAYS   : "Mon,Tue,Wed,Thu,Fri,Sat,Sun".split(",")
-
   @available: ["Atom.Day"]
 
   @events : ["select"]
 
+  @default :
+    months: ["January", "February", "March", "April", "May", "June", "July",
+             "August", "September", "October", "November", "December"]
+    days  : ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+
   constructor: (attributes) ->
     super attributes
     @today = new Date()
-    do @date
+    @date new Date attributes.date or @today
+
 
   date: (@value = new Date()) ->
-    @value = new Date("2014/08/26")
-
+    console.log @value
+    # @value = new Date "2014/08/10"
     do @destroyChildren
 
     day = @value.getDate()
     month = @value.getMonth()
     year = @value.getFullYear()
 
-    # DAYS HEADER
-    for day in @constructor.DAYS
+    # Days header
+    for day in @attributes.days
       @appendChild "App.Extension.Calendar.Day", day: day, events: undefined
 
     # Previous Month visible Days
