@@ -10,7 +10,7 @@
 
 class Atoms.Molecule.Calendar extends Atoms.Molecule.Div
 
-  @available: ["Atom.Day"]
+  @available: ["Atom.Day", "Atom.Heading"]
 
   @events : ["select"]
 
@@ -18,6 +18,9 @@ class Atoms.Molecule.Calendar extends Atoms.Molecule.Div
     months: ["January", "February", "March", "April", "May", "June", "July",
              "August", "September", "October", "November", "December"]
     days  : ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+    children: [
+      "Atom.Heading": id: "literal", value: "Year", size: "h4"
+    ]
 
   constructor: (attributes) ->
     super attributes
@@ -26,11 +29,13 @@ class Atoms.Molecule.Calendar extends Atoms.Molecule.Div
 
 
   date: (@value = new Date()) ->
-    do @destroyChildren
+    child.destroy() for child in @children when child.constructor.name is "Day"
 
     day = @value.getDate()
     month = @value.getMonth()
     year = @value.getFullYear()
+
+    @literal.el.html "#{@attributes.months[month]} - #{year}"
 
     # Days header
     for day in @attributes.days
@@ -39,7 +44,6 @@ class Atoms.Molecule.Calendar extends Atoms.Molecule.Div
     # Previous Month visible Days
     first_day_of_month = new Date(year, month).getDay() - 1
     previous_days = @_daysInMonth((month - 1), year) - (first_day_of_month - 1)
-
     for previousDay in [0...first_day_of_month]
       @appendChild "App.Extension.Calendar.Day", day: previous_days, disabled: true
       previous_days++
@@ -62,12 +66,12 @@ class Atoms.Molecule.Calendar extends Atoms.Molecule.Div
       @appendChild "App.Extension.Calendar.Day", day: day, disabled: true
       day++
 
+
   # -- Bubble Children Events --------------------------------------------------
   onDayTouch: (event, atom) ->
-    console.log atom.attributes.date
     atom.el
       .addClass "active"
-      .siblings().removeClass "active"
+      .siblings("[data-atom-day]").removeClass "active"
     @bubble "select", atom.attributes.date
     false
 
