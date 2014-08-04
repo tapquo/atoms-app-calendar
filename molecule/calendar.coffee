@@ -22,7 +22,9 @@ class Atoms.Molecule.Calendar extends Atoms.Molecule.Div
       "Atom.Heading": id: "literal", value: "Year", size: "h4"
     ]
 
-  constructor: (attributes) ->
+  constructor: (attributes = {}) ->
+    for key in ["months", "days"] when not attributes[key]
+      attributes[key] = @constructor.default[key]
     super attributes
     @today = new Date()
     @date new Date attributes.date or @today

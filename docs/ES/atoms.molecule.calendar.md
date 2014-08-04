@@ -13,8 +13,8 @@ Por defecto el calendario contiene literales en inglés, si quisieses cambiarlo 
 
 ```
 attributes = {
-	days: ["L", "M", "X", "J", "V", "S", "D"],
-	date: "1980/04/10"	
+    days: ["L", "M", "X", "J", "V", "S", "D"],
+    date: "1980/04/10"
 };
 calendar_instance = new Atoms.Molecule.Calendar(attributes);
 ```
