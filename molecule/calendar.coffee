@@ -26,8 +26,6 @@ class Atoms.Molecule.Calendar extends Atoms.Molecule.Div
 
 
   date: (@value = new Date()) ->
-    console.log @value
-    # @value = new Date "2014/08/10"
     do @destroyChildren
 
     day = @value.getDate()
