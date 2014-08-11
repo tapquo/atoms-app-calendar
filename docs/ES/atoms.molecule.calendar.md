@@ -3,18 +3,20 @@ Es el elemento encargado de crear un calendario en vista mensual, dispone de mé
 
 ### Attributes
 ```
-id       : String [OPTIONAL]
-days     : Array[String] [OPTIONAL]
-months   : Array[String] [OPTIONAL]
-date     : String [OPTIONAL]
+id                    : String [OPTIONAL]
+days                  : Array[String] [OPTIONAL]
+months                : Array[String] [OPTIONAL]
+disable_previous_days : Boolean [OPTIONAL]
+date                  : String [OPTIONAL]
 ```
 
 Por defecto el calendario contiene literales en inglés, si quisieses cambiarlo a otro idioma únicamente debes establecerlos a la hora de crear la instancia de *Molecule.Calendar*:
 
 ```
 attributes = {
-	days: ["L", "M", "X", "J", "V", "S", "D"],
-	date: "1980/04/10"	
+    days                 : ["L", "M", "X", "J", "V", "S", "D"],
+    date                 : "1980/04/10",
+    disable_previous_days: true
 };
 calendar_instance = new Atoms.Molecule.Calendar(attributes);
 ```
@@ -38,6 +40,9 @@ calendar_instance.date(new Date());
 var april = new Date("2014/04/10");
 calendar_instance.date(april);
 /*  April 2014 */
+
+calendar_instance.current;
+/* Mon Apr 10 2014 00:00:00 GMT+0200 (CEST) */
 ```
 
 ### Events
