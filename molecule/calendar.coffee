@@ -49,50 +49,62 @@ class Atoms.Molecule.Calendar extends Atoms.Molecule.Div
 
     # Previous Month visible Days
     first_day_of_month = new Date(year, month).getDay() - 1
-    previous_days = @_daysInMonth((month - 1), year) - (first_day_of_month - 1)
-
-    for previousDay in [0...first_day_of_month]
-      attributes =
+    previous_month = @_previousMonth month, year
+    previous_days = @_daysInMonth(previous_month) - (first_day_of_month - 1)
+    for day in [0...first_day_of_month]
+      values =
         day     : previous_days
+        date    : new Date previous_month.setDate previous_days
         disabled: true
-      attributes.events = undefined if @attributes.disable_previous_days
-      @appendChild class_name, attributes
+      if @attributes.disable_previous_days and values.date < @today
+        values.events = undefined
+      @appendChild class_name, values
       previous_days++
 
     # Current Month Days
-    for day in [1..@_daysInMonth(month, year)]
+    for day in [1..@_daysInMonth()]
       date = new Date(year, month, day)
-      attributes =
+      values =
         day   : day
         date  : date
         today : @today.toString().substring(4, 15) is date.toString().substring(4, 15)
         active: @current.toString().substring(4, 15) is date.toString().substring(4, 15)
         # event : (day > 11 and day < 13) or (day > 19 and day < 22)
       if @attributes.disable_previous_days and date < @today
-        attributes.disabled = true
-        attributes.events = undefined
-      @appendChild class_name, attributes
+        values.disabled = true
+        values.events = undefined
+      @appendChild class_name, values
 
     # Next Month visible Days
-    last_day_of_month = new Date(year, month, @_daysInMonth(month, year)).getDay()
+    next_month = @_nextMonth month, year
+    last_day_of_month = new Date(year, month, @_daysInMonth()).getDay()
     day = 1
     for index in [6..last_day_of_month]
-      @appendChild class_name, day: day, disabled: true
+      @appendChild class_name,
+        day     : day
+        date    : new Date next_month.setDate day
+        disabled: true
       day++
 
 
   # -- Bubble Children Events --------------------------------------------------
   onDayTouch: (event, atom) ->
-    @current = atom.attributes.date
     atom.el
       .addClass "active"
-      .siblings("[data-atom-day]").removeClass "active"
-    @bubble "select", @current
+      .siblings("[data-atom-day]")?.removeClass "active"
+    @bubble "select", atom.attributes.date
+
+    if atom.attributes.date.getMonth() isnt @current.getMonth()
+      @date atom.attributes.date
+    @current = atom.attributes.date
     false
 
   # -- Private Events ----------------------------------------------------------
-  _daysInMonth: (month, year = 2014) ->
-    if month < 0
-      month = 12
-      year--
-    32 - new Date(year, month, 32).getDate()
+  _previousMonth: (month, year) ->
+    new Date year, (month - 1), 1
+
+  _nextMonth: (month, year) ->
+    new Date year, (month + 1), 1
+
+  _daysInMonth: (date = @current) ->
+    32 - new Date(date.getYear(), date.getMonth(), 32).getDate()
