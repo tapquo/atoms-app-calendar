@@ -103,7 +103,7 @@ class Atoms.Molecule.Calendar extends Atoms.Molecule.Div
     atom.el
       .addClass "active"
       .siblings("[data-atom-day]")?.removeClass "active"
-    @bubble "select", atom.attributes.date
+    @bubble "select", atom
 
     if atom.attributes.date.getMonth() isnt @current.getMonth()
       @date atom.attributes.date
