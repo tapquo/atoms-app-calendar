@@ -24,10 +24,13 @@ class Atoms.Molecule.Calendar extends Atoms.Molecule.Div
       "Atom.Heading": id: "literal", value: "Year", size: "h4"
     ]
 
+  e : []
+
   constructor: (attributes = {}) ->
     for key in ["months", "days"] when not attributes[key]
       attributes[key] = @constructor.default[key]
     super attributes
+    @events = {}
     @today = new Date()
     @today = new Date(@today.getFullYear(), @today.getMonth(), @today.getDate())
     @date new Date attributes.date or @today
@@ -40,7 +43,7 @@ class Atoms.Molecule.Calendar extends Atoms.Molecule.Div
     month = @current.getMonth()
     year = @current.getFullYear()
 
-    @literal.el.html "#{@attributes.months[month]} - #{year}"
+    @literal.el.html "#{@attributes.months[month]} <small>#{year}</small>"
 
     class_name = "App.Extension.Calendar.Day"
     # Days header
@@ -69,7 +72,8 @@ class Atoms.Molecule.Calendar extends Atoms.Molecule.Div
         date  : date
         today : @today.toString().substring(4, 15) is date.toString().substring(4, 15)
         active: @current.toString().substring(4, 15) is date.toString().substring(4, 15)
-        # event : (day > 11 and day < 13) or (day > 19 and day < 22)
+
+      values.event = @events[date] if @events[date]?
       if @attributes.disable_previous_days and date < @today
         values.disabled = true
         values.events = undefined
@@ -86,6 +90,13 @@ class Atoms.Molecule.Calendar extends Atoms.Molecule.Div
         disabled: true
       day++
 
+  setEvent: (date, value = {}) ->
+    @events[date] = value
+    @_find(date)?.setEvent?(value)
+
+  removeEvent: (date) ->
+    delete @events[date]
+    @_find(date)?.removeEvent?()
 
   # -- Bubble Children Events --------------------------------------------------
   onDayTouch: (event, atom) ->
@@ -108,3 +119,6 @@ class Atoms.Molecule.Calendar extends Atoms.Molecule.Div
 
   _daysInMonth: (date = @current) ->
     32 - new Date(date.getYear(), date.getMonth(), 32).getDate()
+
+  _find: (date) ->
+    return day for day in @children when date - day.attributes.date is 0

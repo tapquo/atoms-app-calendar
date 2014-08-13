@@ -4,7 +4,7 @@ __.Extension.Calendar = {}
 
 class __.Extension.Calendar.Day extends Atoms.Class.Atom
 
-  @template : """<span class="{{style}} {{#disabled}}disabled{{/disabled}} {{#today}}today{{/today}} {{#active}}active{{/active}} {{#event}}event{{/event}}">{{day}}</span>"""
+  @template : """<span class="{{style}} {{#disabled}}disabled{{/disabled}} {{#today}}today{{/today}} {{#active}}active{{/active}} {{#if.event}}event{{/if.event}}">{{day}}</span>"""
 
   @base     : "Day"
 
@@ -12,3 +12,10 @@ class __.Extension.Calendar.Day extends Atoms.Class.Atom
 
   @default  :
     events: ["touch"]
+
+  # -- Instance Methods --------------------------------------------------------
+  setEvent: (value) ->
+    @refresh event: value
+
+  removeEvent: ->
+    @refresh event: undefined

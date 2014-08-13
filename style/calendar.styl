@@ -3,37 +3,44 @@
 
 [data-molecule-div=calendar]
   position: relative
-  display: table
   text-align: center
+  width: inherit
 
   > [data-atom-heading]
-    font-size
+    > *
+      padding-right: (FONT_SIZE_TINY / 4)
+      font-size: FONT_SIZE_TINY
+      font-weight: FONT_WEIGHT_THIN
+      font-style: italic
+      opacity: 0.5
+
   > [data-atom-day]
     position: relative
     display: inline-block
     width: 14.25%
     font-size: FONT_SIZE_SMALL
+    line-height: (1.75 * FONT_SIZE_SMALL)
     font-weight: FONT_WEIGHT_NORMAL
-    line-height: 1.75rem
-    border-radius .15rem
-
-
-    &:hover, &:active
-      font-weight: FONT_WEIGHT_BOLD
-
-    &:nth-child(7n+7), &:nth-child(7n+8)
-      opacity: 0.6
+    cursor: pointer
 
     &:nth-child(-n+8)
-      font-size: FONT_SIZE_TINY
+      font-weight: FONT_WEIGHT_BOLD
+      font-size: SIZE = (FONT_SIZE_TINY / 1.1)
+      line-height: SIZE
+      opacity: 0.5
 
-    &.disabled, &:nth-child(-n+8)
+    &.disabled
       font-weight: FONT_WEIGHT_THIN
+      background-color: rgba(0,0,0,0.1)
       opacity: 0.3
+
+    &:nth-child(n+9)
+      &:active
+        background-color: rgba(0,0,0,0.15)
+        font-weight: FONT_WEIGHT_BOLD
 
     &.today
       font-weight: FONT_WEIGHT_BOLD
-      color: red
 
     &.event
       font-weight: FONT_WEIGHT_BOLD
@@ -41,15 +48,23 @@
         content: "·"
         position: absolute
         left: 0px
-        top: 64%
+        top: 65%
         width: 100%
         height: HEIGHT = (FONT_SIZE_SMALL / 2)
         font-size: (2.5 * FONT_SIZE_BIG)
         font-weight: FONT_WEIGHT_THIN
         line-height: HEIGHT
-        opacity: 0.6
+        opacity: 0.5
 
     &.active
-      background-color: #ccc
-      color: #fff
+      background-color: rgba(0,0,0,0.4)
+      color: WHITE
       font-weight: FONT_WEIGHT_BOLD
+
+@media screen and (min-width: 1024px)
+  [data-molecule-div=calendar]
+    > [data-atom-day]
+      &:nth-child(n+9)
+        &:hover
+          background-color: rgba(0,0,0,0.15)
+          font-weight: FONT_WEIGHT_BOLD
