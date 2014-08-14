@@ -24,8 +24,6 @@ class Atoms.Molecule.Calendar extends Atoms.Molecule.Div
       "Atom.Heading": id: "literal", value: "Year", size: "h4"
     ]
 
-  e : []
-
   constructor: (attributes = {}) ->
     for key in ["months", "days"] when not attributes[key]
       attributes[key] = @constructor.default[key]
@@ -52,6 +50,7 @@ class Atoms.Molecule.Calendar extends Atoms.Molecule.Div
 
     # Previous Month visible Days
     first_day_of_month = new Date(year, month).getDay() - 1
+    first_day_of_month = 7 if first_day_of_month is 0
     previous_month = @_previousMonth month, year
     previous_days = @_daysInMonth(previous_month) - (first_day_of_month - 1)
     for day in [0...first_day_of_month]
@@ -90,13 +89,21 @@ class Atoms.Molecule.Calendar extends Atoms.Molecule.Div
         disabled: true
       day++
 
-  setEvent: (date, value = {}) ->
-    @events[date] = value
-    @_find(date)?.setEvent?(value)
+  setEvent: (values, data = {}) ->
+    values = [values] unless Array.isArray(values)
+    for value in values
+      @events[value] = data
+      @_find(value)?.setEvent?(data)
 
-  removeEvent: (date) ->
-    delete @events[date]
-    @_find(date)?.removeEvent?()
+  removeEvent: (values) ->
+    values = [values] unless Array.isArray(values)
+    for value in values
+      delete @events[value]
+      @_find(value)?.removeEvent?()
+
+  removeAllEvents: ->
+    @events = []
+    @date @current
 
   # -- Bubble Children Events --------------------------------------------------
   onDayTouch: (event, atom) ->
