@@ -10,19 +10,17 @@
 
 class Atoms.Molecule.Calendar extends Atoms.Molecule.Div
 
-  @extends  : true
-
-  @available: ["Atom.Day", "Atom.Heading"]
-
-  @events   : ["select"]
-
-  @default  :
+  @extends    : true
+  @available  : ["Atom.Day", "Atom.Heading"]
+  @events     : ["select"]
+  @default    :
     months: ["January", "February", "March", "April", "May", "June", "July",
              "August", "September", "October", "November", "December"]
     days  : ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
     children: [
       "Atom.Heading": id: "literal", value: "Year", size: "h4"
     ]
+  @child_class: "App.Extension.Calendar.Day"
 
   constructor: (attributes = {}) ->
     for key in ["months", "days"] when not attributes[key]
@@ -43,10 +41,9 @@ class Atoms.Molecule.Calendar extends Atoms.Molecule.Div
 
     @literal.el.html "#{@attributes.months[month]} <small>#{year}</small>"
 
-    class_name = "App.Extension.Calendar.Day"
     # Days header
     for day in @attributes.days
-      @appendChild class_name, day: day, events: undefined
+      @appendChild @constructor.child_class, day: day, events: undefined
 
     # Previous Month visible Days
     first_day_of_month = new Date(year, month).getDay() - 1
@@ -58,9 +55,8 @@ class Atoms.Molecule.Calendar extends Atoms.Molecule.Div
         day     : previous_days
         date    : new Date previous_month.setDate previous_days
         disabled: true
-      if @attributes.disable_previous_days and values.date < @today
-        values.events = undefined
-      @appendChild class_name, values
+      values.events = undefined unless @_selectableDate date
+      @appendChild @constructor.child_class, values
       previous_days++
 
     # Current Month Days
@@ -71,22 +67,23 @@ class Atoms.Molecule.Calendar extends Atoms.Molecule.Div
         date  : date
         today : @today.toString().substring(4, 15) is date.toString().substring(4, 15)
         active: @current.toString().substring(4, 15) is date.toString().substring(4, 15)
-
       values.event = @events[date] if @events[date]?
-      if @attributes.disable_previous_days and date < @today
+      unless @_selectableDate date
         values.disabled = true
         values.events = undefined
-      @appendChild class_name, values
+      @appendChild @constructor.child_class, values
 
     # Next Month visible Days
     next_month = @_nextMonth month, year
     last_day_of_month = new Date(year, month, @_daysInMonth()).getDay()
     day = 1
     for index in [6..last_day_of_month]
-      @appendChild class_name,
+      values =
         day     : day
         date    : new Date next_month.setDate day
         disabled: true
+      values.events = undefined unless @_selectableDate values.date
+      @appendChild @constructor.child_class, values
       day++
 
   setEvent: (values, data = {}) ->
@@ -129,3 +126,19 @@ class Atoms.Molecule.Calendar extends Atoms.Molecule.Div
 
   _find: (date) ->
     return day for day in @children when date - day.attributes.date is 0
+
+  _selectableDate: (date) ->
+    return false if @attributes.disable_previous_days and date < @today
+    format_date = @_format date
+    return false if @attributes.from? and @attributes.from > format_date
+    return false if @attributes.to? and @attributes.to < format_date
+    return true
+
+  _format: (date) ->
+    date = new Date(date)
+    str = "#{date.getFullYear()}/"
+    month = date.getMonth() + 1
+    str += if month < 10 then "0#{month}/" else "#{month}/"
+    day = date.getDate()
+    str += if day < 10 then "0#{day}" else "#{day}"
+    str
