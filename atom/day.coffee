@@ -15,7 +15,9 @@ class __.Extension.Calendar.Day extends Atoms.Class.Atom
 
   # -- Instance Methods --------------------------------------------------------
   setEvent: (value) ->
-    @refresh event: value
+    @attributes.event = value
+    @el.addClass "event"
 
   removeEvent: ->
-    @refresh event: undefined
+    delete @attributes.event
+    @el.removeClass "event"

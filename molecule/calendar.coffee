@@ -107,11 +107,11 @@ class Atoms.Molecule.Calendar extends Atoms.Molecule.Div
   onDayTouch: (event, atom) ->
     atom.el
       .addClass "active"
-      .siblings("[data-atom-day]")?.removeClass "active"
-
+      .siblings()?.removeClass "active"
     if atom.attributes.date.getMonth() isnt @current.getMonth()
       @date atom.attributes.date
-    @current = atom.attributes.date
+    else
+      @current = atom.attributes.date
     @bubble "select", atom
     false
 
