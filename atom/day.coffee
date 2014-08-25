@@ -4,7 +4,7 @@ __.Extension.Calendar = {}
 
 class __.Extension.Calendar.Day extends Atoms.Class.Atom
 
-  @template : """<span class="{{style}} {{#disabled}}disabled{{/disabled}} {{#today}}today{{/today}} {{#active}}active{{/active}} {{#if.event}}event{{/if.event}}">{{day}}</span>"""
+  @template : """<span class="{{style}}{{#disabled}} disabled{{/disabled}}{{#today}} today{{/today}}{{#active}} active{{/active}}{{#if.event}} event{{/if.event}}{{#if.other}} other{{/if.other}}"> {{day}}</span>"""
 
   @base     : "Day"
 

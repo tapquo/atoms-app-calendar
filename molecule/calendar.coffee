@@ -54,7 +54,7 @@ class Atoms.Molecule.Calendar extends Atoms.Molecule.Div
       values =
         day     : previous_days
         date    : new Date previous_month.setDate previous_days
-        disabled: true
+        other   : true
       values.events = undefined if not(@_active date) or @attributes.disabled
       @appendChild @constructor.child_class, values
       previous_days++
@@ -82,7 +82,7 @@ class Atoms.Molecule.Calendar extends Atoms.Molecule.Div
       values =
         day     : day
         date    : new Date next_month.setDate day
-        disabled: true
+        other   : true
       values.events = undefined if not(@_active values.date) or @attributes.disabled
       @appendChild @constructor.child_class, values
       day++
@@ -131,6 +131,7 @@ class Atoms.Molecule.Calendar extends Atoms.Molecule.Div
   _active: (date) ->
     return false if @attributes.disable_previous_days and date < @today
     format_date = @_format date
+    return false if @attributes.available? and format_date not in @attributes.available
     return false if @attributes.from? and @attributes.from > format_date
     return false if @attributes.to? and @attributes.to < format_date
     return true
