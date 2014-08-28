@@ -48,7 +48,9 @@ class Atoms.Molecule.Calendar extends Atoms.Molecule.Div
     @el.addClass "disabled" if @attributes.disabled
     if @attributes.disable_previous_days and month is new Date().getMonth()
       @el.addClass "disable_previous_days"
+
     child.destroy() for child in @children when child.constructor.name is "Day"
+    @children = [@children[0]]
 
     # Days header
     for day in @attributes.days
