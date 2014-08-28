@@ -11,14 +11,20 @@
 class Atoms.Molecule.Calendar extends Atoms.Molecule.Div
 
   @extends    : true
-  @available  : ["Atom.Day", "Atom.Heading"]
+  @available  : ["Atom.Day", "Molecule.Div"]
   @events     : ["select"]
   @default    :
     months: ["January", "February", "March", "April", "May", "June", "July",
              "August", "September", "October", "November", "December"]
     days  : ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
     children: [
-      "Atom.Heading": id: "literal", value: "Year", size: "h4"
+      "Molecule.Div": id: "header", children: [
+        "Atom.Button": icon:"angle-left", style: "transparent", callbacks: ["onPreviousMonth"]
+      ,
+        "Atom.Heading": id: "literal", value: "Year", size: "h4"
+      ,
+        "Atom.Button": icon:"angle-right", style: "transparent", callbacks: ["onNextMonth"]
+      ]
     ]
   @child_class: "App.Extension.Calendar.Day"
 
@@ -31,32 +37,32 @@ class Atoms.Molecule.Calendar extends Atoms.Molecule.Div
     @today = new Date(@today.getFullYear(), @today.getMonth(), @today.getDate())
     @date new Date attributes.date or @today
 
-
   date: (@current = new Date()) ->
-    child.destroy() for child in @children when child.constructor.name is "Day"
-
     day = @current.getDate()
     month = @current.getMonth()
     year = @current.getFullYear()
 
-    @literal.el.html "#{@attributes.months[month]} <small>#{year}</small>"
+    # Header
+    @header.literal.el.html "#{@attributes.months[month]} <small>#{year}</small>"
+    @el.removeClass key for key in ["disabled", "disable_previous_days"]
+    @el.addClass "disabled" if @attributes.disabled
+    if @attributes.disable_previous_days and month is new Date().getMonth()
+      @el.addClass "disable_previous_days"
+    child.destroy() for child in @children when child.constructor.name is "Day"
 
     # Days header
     for day in @attributes.days
-      @appendChild @constructor.child_class, day: day, events: undefined
+      @appendChild @constructor.child_class, day: day, summary: true
 
     # Previous Month visible Days
     first_day_of_month = new Date(year, month).getDay() - 1
-    first_day_of_month = 7 if first_day_of_month is 0
+    first_day_of_month = 6 if first_day_of_month < 0
     previous_month = @_previousMonth month, year
     previous_days = @_daysInMonth(previous_month) - (first_day_of_month - 1)
     for day in [0...first_day_of_month]
-      values =
+      @appendChild @constructor.child_class,
         day     : previous_days
-        date    : new Date previous_month.setDate previous_days
-        other   : true
-      values.events = undefined if not(@_active date) or @attributes.disabled
-      @appendChild @constructor.child_class, values
+        current : false
       previous_days++
 
     # Current Month Days
@@ -65,26 +71,20 @@ class Atoms.Molecule.Calendar extends Atoms.Molecule.Div
       values =
         day   : day
         date  : date
+        month : true
         today : @today.toString().substring(4, 15) is date.toString().substring(4, 15)
         active: @current.toString().substring(4, 15) is date.toString().substring(4, 15)
       values.event = @events[date] if @events[date]?
-      unless @_active date
-        values.disabled = true
-        values.events = undefined
-      values.events = undefined if @attributes.disabled
+      values.events = ["touch"] if @_active date
       @appendChild @constructor.child_class, values
 
     # Next Month visible Days
-    next_month = @_nextMonth month, year
     last_day_of_month = new Date(year, month, @_daysInMonth()).getDay()
     day = 1
     for index in [6..last_day_of_month]
-      values =
+      @appendChild @constructor.child_class,
         day     : day
-        date    : new Date next_month.setDate day
-        other   : true
-      values.events = undefined if not(@_active values.date) or @attributes.disabled
-      @appendChild @constructor.child_class, values
+        current : false
       day++
 
   setEvent: (values, data = {}) ->
@@ -104,6 +104,14 @@ class Atoms.Molecule.Calendar extends Atoms.Molecule.Div
     @date @current
 
   # -- Bubble Children Events --------------------------------------------------
+  onPreviousMonth: ->
+    @date @_previousMonth @current.getMonth(), @current.getFullYear()
+    false
+
+  onNextMonth: ->
+    @date @_nextMonth @current.getMonth(), @current.getFullYear()
+    false
+
   onDayTouch: (event, atom) ->
     atom.el
       .addClass "active"
