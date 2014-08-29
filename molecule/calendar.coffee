@@ -37,57 +37,12 @@ class Atoms.Molecule.Calendar extends Atoms.Molecule.Div
     @today = new Date(@today.getFullYear(), @today.getMonth(), @today.getDate())
     @date new Date attributes.date or @today
 
-  date: (@current = new Date()) ->
-    day = @current.getDate()
-    month = @current.getMonth()
-    year = @current.getFullYear()
+  refresh: ->
+    super
+    @date new Date @attributes.date or @today
 
-    # Header
-    @header.literal.el.html "#{@attributes.months[month]} <small>#{year}</small>"
-    @el.removeClass key for key in ["disabled", "disable_previous_days"]
-    @el.addClass "disabled" if @attributes.disabled
-    if @attributes.disable_previous_days and month is new Date().getMonth()
-      @el.addClass "disable_previous_days"
-
-    child.destroy() for child in @children when child.constructor.name is "Day"
-    @children = [@children[0]]
-
-    # Days header
-    for day in @attributes.days
-      @appendChild @constructor.child_class, day: day, summary: true
-
-    # Previous Month visible Days
-    first_day_of_month = new Date(year, month).getDay() - 1
-    first_day_of_month = 6 if first_day_of_month < 0
-    previous_month = @_previousMonth month, year
-    previous_days = @_daysInMonth(previous_month) - (first_day_of_month - 1)
-    for day in [0...first_day_of_month]
-      @appendChild @constructor.child_class,
-        day     : previous_days
-        current : false
-      previous_days++
-
-    # Current Month Days
-    for day in [1..@_daysInMonth()]
-      date = new Date(year, month, day)
-      values =
-        day   : day
-        date  : date
-        month : true
-        today : @today.toString().substring(4, 15) is date.toString().substring(4, 15)
-        active: @current.toString().substring(4, 15) is date.toString().substring(4, 15)
-      values.event = @events[date] if @events[date]?
-      values.events = ["touch"] if @_active date
-      @appendChild @constructor.child_class, values
-
-    # Next Month visible Days
-    last_day_of_month = new Date(year, month, @_daysInMonth()).getDay()
-    day = 1
-    for index in [6..last_day_of_month]
-      @appendChild @constructor.child_class,
-        day     : day
-        current : false
-      day++
+  # -- Instance methods  ----------------------------------------------------------
+  date: (@current = new Date()) -> @_showMonth @current
 
   setEvent: (values, data = {}) ->
     values = [values] unless Array.isArray(values)
@@ -107,11 +62,11 @@ class Atoms.Molecule.Calendar extends Atoms.Molecule.Div
 
   # -- Bubble Children Events --------------------------------------------------
   onPreviousMonth: ->
-    @date @_previousMonth @current.getMonth(), @current.getFullYear()
+    @_showMonth @_previousMonth()
     false
 
   onNextMonth: ->
-    @date @_nextMonth @current.getMonth(), @current.getFullYear()
+    @_showMonth @_nextMonth()
     false
 
   onDayTouch: (event, atom) ->
@@ -126,13 +81,62 @@ class Atoms.Molecule.Calendar extends Atoms.Molecule.Div
     false
 
   # -- Private Events ----------------------------------------------------------
-  _previousMonth: (month, year) ->
-    new Date year, (month - 1), 1
+  _showMonth: (date) ->
+    @year = date.getFullYear()
+    @month = date.getMonth()
 
-  _nextMonth: (month, year) ->
-    new Date year, (month + 1), 1
+    # Header
+    @header.literal.el.html "#{@attributes.months[@month]} <small>#{@year}</small>"
+    @el.removeClass key for key in ["disabled", "disable_previous_days"]
+    @el.addClass "disabled" if @attributes.disabled
+    if @attributes.disable_previous_days and @month is new Date().getMonth()
+      @el.addClass "disable_previous_days"
 
-  _daysInMonth: (date = @current) ->
+    child.destroy() for child in @children when child.constructor.name is "Day"
+    @children = [@children[0]]
+
+    # Days header
+    for day in @attributes.days
+      @appendChild @constructor.child_class, day: day, summary: true
+
+    # Previous Month visible Days
+    first_day_of_month = new Date(@year, @month).getDay() - 1
+    first_day_of_month = 6 if first_day_of_month < 0
+    previous_month = @_previousMonth()
+    previous_days = @_daysInMonth(previous_month) - (first_day_of_month - 1)
+    for day in [0...first_day_of_month]
+      @appendChild @constructor.child_class,
+        day     : previous_days
+        current : false
+      previous_days++
+
+    # Current Month Days
+    for day in [1..@_daysInMonth(date)]
+      date = new Date(@year, @month, day)
+      values =
+        day   : day
+        date  : date
+        month : true
+        today : @today.toString().substring(4, 15) is date.toString().substring(4, 15)
+        active: @current.toString().substring(4, 15) is date.toString().substring(4, 15)
+      values.event = @events[date] if @events[date]?
+      values.events = ["touch"] if @_active date
+      @appendChild @constructor.child_class, values
+
+    # Next Month visible Days
+    last_day_of_month = new Date(@year, @month, @_daysInMonth(date)).getDay()
+    day = 1
+    for index in [6..last_day_of_month]
+      @appendChild @constructor.child_class,
+        day     : day
+        current : false
+      day++
+
+  _previousMonth: -> new Date @year, (@month - 1), 1
+
+  _nextMonth: -> new Date @year, (@month + 1), 1
+
+  _daysInMonth: (date) ->
     32 - new Date(date.getYear(), date.getMonth(), 32).getDate()
 
   _find: (date) ->
