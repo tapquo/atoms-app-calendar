@@ -1,0 +1,13 @@
+{
+  "name": "atoms-app-calendar",
+  "version": "1.0.0",
+  "main": "atoms.app.calendar.js",
+  "homepage": "http://atoms.tapquo.com",
+  "license": "MIT",
+  "authors": [
+    "Javi Jimenez", "Javi Jimenez <javi@tapquo.com>"],
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/tapquo/atoms-app-calendar.git"
+  }
+}
