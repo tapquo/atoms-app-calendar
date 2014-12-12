@@ -1,6 +1,6 @@
 {
   "name": "atoms-app-calendar",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "main": "atoms.app.calendar.js",
   "homepage": "http://atoms.tapquo.com",
   "license": "MIT",
